@@ -1,117 +1,93 @@
 const express = require('express');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
 const cors = require('cors');
-const rateLimit = require('express-rate-limit');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const JWT_SECRET = 'your-super-secret-key-change-this';
 
-// NO helmet - removed completely to fix CSP issue
+// Middleware
 app.use(cors());
 app.use(express.json());
 app.use(express.static('public'));
 
-// Rate limiting
-const loginLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000,
-    max: 100,
-    message: { error: 'Too many attempts' }
+// Simple storage (NO bcrypt for now)
+const users = [];
+
+// Health check
+app.get('/api/health', (req, res) => {
+    res.json({ status: 'ok', message: 'Server is running' });
 });
 
-// Storage
-const users = new Map();
-
-// Helper functions
-const generateToken = (userId) => {
-    return jwt.sign({ userId }, JWT_SECRET, { expiresIn: '7d' });
-};
-
-// Register
-app.post('/api/register', async (req, res) => {
+// Register (NO password hashing for now)
+app.post('/api/register', (req, res) => {
     const { name, email, password } = req.body;
+    
+    console.log('Register:', { name, email });
     
     if (!name || !email || !password) {
         return res.status(400).json({ error: 'All fields required' });
     }
     
     if (password.length < 6) {
-        return res.status(400).json({ error: 'Password must be 6+ chars' });
+        return res.status(400).json({ error: 'Password must be 6+ characters' });
     }
     
     // Check if user exists
-    for (let user of users.values()) {
-        if (user.email === email) {
-            return res.status(400).json({ error: 'Email already exists' });
-        }
+    const existing = users.find(u => u.email === email);
+    if (existing) {
+        return res.status(400).json({ error: 'User already exists' });
     }
     
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const userId = Date.now().toString();
-    
+    // Save user (plain text password - TEMPORARY!)
     const newUser = {
-        id: userId,
+        id: users.length + 1,
         name: name,
         email: email,
-        password: hashedPassword,
-        createdAt: new Date()
+        password: password  // NOT HASHED - fix later
     };
     
-    users.set(userId, newUser);
-    const token = generateToken(userId);
+    users.push(newUser);
+    console.log('Users:', users.length);
     
     res.json({ 
-        message: 'Account created successfully!', 
-        token: token,
-        user: { id: userId, name: name, email: email }
+        success: true, 
+        message: 'Account created!',
+        user: { id: newUser.id, name: newUser.name, email: newUser.email }
     });
 });
 
-// Login
-app.post('/api/login', loginLimiter, async (req, res) => {
+// Login (NO bcrypt)
+app.post('/api/login', (req, res) => {
     const { identifier, password } = req.body;
+    
+    console.log('Login:', { identifier });
     
     if (!identifier || !password) {
         return res.status(400).json({ error: 'Email and password required' });
     }
     
-    // Find user by email
-    let foundUser = null;
-    for (let user of users.values()) {
-        if (user.email === identifier) {
-            foundUser = user;
-            break;
-        }
+    const user = users.find(u => u.email === identifier);
+    
+    if (!user) {
+        return res.status(401).json({ error: 'Invalid credentials' });
     }
     
-    if (!foundUser) {
-        return res.status(401).json({ error: 'Invalid email or password' });
+    if (user.password !== password) {
+        return res.status(401).json({ error: 'Invalid credentials' });
     }
-    
-    const valid = await bcrypt.compare(password, foundUser.password);
-    if (!valid) {
-        return res.status(401).json({ error: 'Invalid email or password' });
-    }
-    
-    const token = generateToken(foundUser.id);
     
     res.json({ 
-        message: 'Login successful!', 
-        token: token,
-        user: { id: foundUser.id, name: foundUser.name, email: foundUser.email }
+        success: true, 
+        message: 'Login successful!',
+        user: { id: user.id, name: user.name, email: user.email }
     });
 });
 
-// Health check
-app.get('/api/health', (req, res) => {
-    res.json({ status: 'ok', users: users.size });
-});
-
+// Home
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/public/index.html');
 });
 
 app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+    console.log(`✅ Server running on port ${PORT}`);
+    console.log(`📍 http://localhost:${PORT}`);
 });
