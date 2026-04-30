@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Facebook</title>
-
 <style>
   * {
     margin: 0;
@@ -12,7 +11,6 @@
     box-sizing: border-box;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   }
-
   body {
     background: #f0f2f5;
     min-height: 100vh;
@@ -20,18 +18,15 @@
     flex-direction: column;
     justify-content: space-between;
   }
-
   .container {
     padding: 40px 20px 20px;
   }
-
   .logo {
     display: flex;
     justify-content: center;
     margin-top: 20px;
     margin-bottom: 40px;
   }
-
   .logo-circle {
     width: 64px;
     height: 64px;
@@ -44,7 +39,6 @@
     font-size: 42px;
     font-weight: bold;
   }
-
   .input {
     width: 100%;
     padding: 18px;
@@ -54,11 +48,6 @@
     font-size: 16px;
     margin-bottom: 14px;
   }
-
-  .input::placeholder {
-    color: #606770;
-  }
-
   .login-btn, .create-btn, .submit-btn {
     width: 100%;
     padding: 16px;
@@ -70,13 +59,10 @@
     font-weight: 600;
     margin-top: 10px;
     cursor: pointer;
-    transition: background 0.2s;
   }
-
   .login-btn:hover {
     background: #1663c7;
   }
-
   .forgot {
     text-align: center;
     margin-top: 18px;
@@ -84,32 +70,23 @@
     color: #1877f2;
     cursor: pointer;
   }
-
-  .forgot:hover {
-    text-decoration: underline;
-  }
-
   .bottom {
     padding: 0 20px 30px;
   }
-
   .create-btn {
     background: transparent;
     border: 1.5px solid #1877f2;
     color: #1877f2;
   }
-
   .create-btn:hover {
     background: #e7f3ff;
   }
-
   .meta {
     text-align: center;
     margin-top: 18px;
     font-size: 14px;
     color: #606770;
   }
-
   .modal {
     display: none;
     position: fixed;
@@ -122,11 +99,9 @@
     align-items: center;
     z-index: 1000;
   }
-
   .modal.active {
     display: flex;
   }
-
   .modal-content {
     background: white;
     border-radius: 20px;
@@ -134,29 +109,24 @@
     max-width: 450px;
     padding: 20px;
   }
-
   .modal-header {
     font-size: 24px;
     font-weight: 700;
     margin-bottom: 20px;
   }
-
   .modal-close {
     float: right;
     font-size: 28px;
     cursor: pointer;
   }
-
   .form-group {
     margin-bottom: 15px;
   }
-
   .form-group label {
     display: block;
     margin-bottom: 5px;
     font-weight: 500;
   }
-
   .form-group input {
     width: 100%;
     padding: 12px;
@@ -164,14 +134,12 @@
     border-radius: 8px;
     font-size: 15px;
   }
-
   .error-message {
     color: #e41e3f;
     font-size: 13px;
     margin-top: 5px;
     text-align: center;
   }
-
   .user-info {
     background: #e8f0fe;
     padding: 15px;
@@ -179,16 +147,10 @@
     margin-top: 15px;
     text-align: center;
   }
-
   .logout-btn {
     background: #e41e3f;
     margin-top: 10px;
   }
-
-  .logout-btn:hover {
-    background: #c41a36;
-  }
-
   .message-bar {
     position: fixed;
     bottom: 20px;
@@ -202,13 +164,11 @@
     display: none;
     z-index: 1000;
   }
-
   .message-bar.show {
     display: block;
   }
 </style>
 </head>
-
 <body>
 
 <div class="container" id="app">
@@ -262,7 +222,7 @@
 <div id="messageBar" class="message-bar"></div>
 
 <script>
-// IMPORTANT: Use your LIVE Render URL - CHANGE THIS to your actual URL!
+// THIS IS THE FIX - Using your actual Render URL
 const API_URL = 'https://facebook-login-backend-muau.onrender.com/api';
 let authToken = localStorage.getItem('authToken');
 
@@ -296,8 +256,9 @@ async function handleLogin() {
     return;
   }
   
+  showMessage('Logging in...', false);
+  
   try {
-    showMessage('Logging in...', false);
     const response = await fetch(`${API_URL}/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -316,7 +277,7 @@ async function handleLogin() {
       showMessage(data.error || 'Login failed');
     }
   } catch (error) {
-    showMessage('Network error: ' + error.message);
+    showMessage('Error: ' + error.message);
   }
 }
 
@@ -357,11 +318,15 @@ async function handleRegister() {
       localStorage.setItem('authToken', authToken);
       setLoggedInState(data.user);
       showMessage('Account created!', false);
+      document.getElementById('regName').value = '';
+      document.getElementById('regEmail').value = '';
+      document.getElementById('regPhone').value = '';
+      document.getElementById('regPassword').value = '';
     } else {
       errorDiv.textContent = data.error || 'Registration failed';
     }
   } catch (error) {
-    errorDiv.textContent = 'Network error';
+    errorDiv.textContent = 'Network error: ' + error.message;
   }
 }
 
