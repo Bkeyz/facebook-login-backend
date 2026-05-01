@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Facebook - Log in or sign up</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Facebook</title>
     <style>
         * {
             margin: 0;
@@ -12,55 +12,60 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             background: #f0f2f5;
+            min-height: 100vh;
+        }
+
+        /* Mobile First Design */
+        .container {
             min-height: 100vh;
             display: flex;
             flex-direction: column;
         }
 
-        .container {
-            flex: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
+        /* Header / Logo Section */
+        .hero {
+            background: white;
+            padding: 40px 20px 30px;
+            text-align: center;
+            border-bottom: 1px solid #dadde1;
         }
 
-        .left-section {
-            width: 500px;
-            margin-right: 50px;
-        }
-
-        .facebook-logo {
-            color: #1877f2;
-            font-size: 55px;
+        .logo {
+            font-size: 48px;
             font-weight: 700;
-            margin-bottom: 20px;
+            color: #1877f2;
+            margin-bottom: 16px;
         }
 
         .tagline {
-            font-size: 28px;
+            font-size: 20px;
             color: #1c1e21;
-            line-height: 32px;
+            line-height: 28px;
+            max-width: 400px;
+            margin: 0 auto;
         }
 
-        .right-section {
+        /* Login Card */
+        .login-card {
             background: white;
+            margin: 20px;
             padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1), 0 8px 16px rgba(0, 0, 0, 0.1);
-            width: 396px;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         .input-field {
             width: 100%;
             padding: 14px 16px;
-            font-size: 17px;
+            font-size: 16px;
             border: 1px solid #dddfe2;
-            border-radius: 6px;
+            border-radius: 8px;
             margin-bottom: 12px;
             background: #ffffff;
+            -webkit-appearance: none;
+            appearance: none;
         }
 
         .input-field:focus {
@@ -72,18 +77,23 @@
         .login-btn {
             background: #1877f2;
             border: none;
-            border-radius: 6px;
-            font-size: 20px;
+            border-radius: 8px;
+            font-size: 18px;
             font-weight: 600;
-            padding: 12px;
+            padding: 14px;
             width: 100%;
             color: white;
             cursor: pointer;
             margin-bottom: 16px;
+            transition: background 0.2s;
         }
 
         .login-btn:hover {
             background: #1666d1;
+        }
+
+        .login-btn:active {
+            background: #0e5ed7;
         }
 
         .forgot-link {
@@ -111,25 +121,31 @@
         .create-btn {
             background: #42b72a;
             border: none;
-            border-radius: 6px;
-            font-size: 17px;
+            border-radius: 8px;
+            font-size: 16px;
             font-weight: 600;
-            padding: 12px;
+            padding: 14px;
             width: 100%;
             color: white;
             cursor: pointer;
+            transition: background 0.2s;
         }
 
         .create-btn:hover {
             background: #36a420;
         }
 
+        .create-btn:active {
+            background: #2d8f1a;
+        }
+
         .message {
             margin-top: 16px;
             padding: 12px;
-            border-radius: 6px;
+            border-radius: 8px;
             text-align: center;
             display: none;
+            font-size: 14px;
         }
 
         .message.success {
@@ -144,11 +160,45 @@
             display: block;
         }
 
-        .footer {
+        /* Welcome View */
+        .welcome-card {
             text-align: center;
-            padding: 20px;
-            color: #737373;
-            font-size: 12px;
+            padding: 30px 20px;
+        }
+
+        .welcome-logo {
+            font-size: 48px;
+            font-weight: 700;
+            color: #1877f2;
+            margin-bottom: 30px;
+        }
+
+        .welcome-name {
+            font-size: 24px;
+            font-weight: 600;
+            color: #1c1e21;
+            margin: 20px 0;
+            word-break: break-word;
+        }
+
+        .welcome-message {
+            color: #65676b;
+            margin-bottom: 30px;
+        }
+
+        .logout-btn {
+            background: #e41e3f;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            padding: 14px 24px;
+            color: white;
+            cursor: pointer;
+            width: 100%;
+            max-width: 200px;
+            margin: 0 auto;
+            transition: background 0.2s;
         }
 
         /* Modal */
@@ -171,74 +221,119 @@
 
         .modal-content {
             background: white;
-            border-radius: 8px;
-            width: 432px;
-            max-width: 90%;
-            padding: 16px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 432px;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 20px;
         }
 
         .modal-header {
-            font-size: 32px;
+            font-size: 28px;
             font-weight: 700;
-            margin-bottom: 12px;
+            margin-bottom: 16px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #dadde1;
         }
 
         .modal-close {
             float: right;
             font-size: 28px;
             cursor: pointer;
+            color: #65676b;
         }
 
-        .welcome-card {
+        .modal-close:hover {
+            color: #1c1e21;
+        }
+
+        .footer {
             text-align: center;
             padding: 20px;
+            color: #737373;
+            font-size: 12px;
+            margin-top: auto;
         }
 
-        .welcome-name {
-            font-size: 24px;
-            font-weight: bold;
-            color: #1877f2;
-            margin: 20px 0;
+        /* Desktop styles */
+        @media (min-width: 900px) {
+            .container {
+                display: flex;
+                flex-direction: row;
+                justify-content: center;
+                align-items: center;
+                min-height: 100vh;
+                max-width: 980px;
+                margin: 0 auto;
+                padding: 20px;
+            }
+
+            .hero {
+                background: transparent;
+                text-align: left;
+                padding: 0;
+                border-bottom: none;
+                flex: 1;
+                margin-right: 40px;
+            }
+
+            .logo {
+                font-size: 55px;
+                text-align: left;
+            }
+
+            .tagline {
+                font-size: 28px;
+                line-height: 32px;
+                margin: 0;
+            }
+
+            .login-card {
+                margin: 0;
+                width: 396px;
+                flex-shrink: 0;
+            }
+
+            .footer {
+                position: fixed;
+                bottom: 0;
+                width: 100%;
+                background: white;
+            }
         }
 
-        .logout-btn {
-            background: #e41e3f;
-            border: none;
-            border-radius: 6px;
-            font-size: 17px;
-            font-weight: 600;
-            padding: 12px;
-            width: 100%;
-            color: white;
-            cursor: pointer;
-            margin-top: 16px;
+        /* Loading state */
+        .loading {
+            opacity: 0.7;
+            pointer-events: none;
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="left-section">
-        <div class="facebook-logo">facebook</div>
+    <div class="hero">
+        <div class="logo">facebook</div>
         <div class="tagline">Connect with friends and the world around you on Facebook.</div>
     </div>
 
-    <div class="right-section">
+    <div class="login-card">
         <div id="loginView">
-            <input type="text" id="loginEmail" class="input-field" placeholder="Email address or phone number">
-            <input type="password" id="loginPassword" class="input-field" placeholder="Password">
-            <button class="login-btn" onclick="handleLogin()">Log In</button>
+            <input type="email" id="loginEmail" class="input-field" placeholder="Email address or phone number" autocomplete="email">
+            <input type="password" id="loginPassword" class="input-field" placeholder="Password" autocomplete="current-password">
+            <button class="login-btn" id="loginBtn">Log In</button>
             <div class="forgot-link"><a id="forgotBtn">Forgotten password?</a></div>
             <hr>
-            <button class="create-btn" onclick="showRegisterModal()">Create new account</button>
+            <button class="create-btn" id="showCreateBtn">Create new account</button>
         </div>
 
         <div id="welcomeView" style="display: none;">
             <div class="welcome-card">
-                <div class="facebook-logo" style="font-size: 40px;">facebook</div>
+                <div class="welcome-logo">facebook</div>
                 <div class="welcome-name" id="welcomeName"></div>
-                <p>You're now logged in!</p>
-                <button class="logout-btn" onclick="handleLogout()">Log Out</button>
+                <div class="welcome-message">You're now logged in!</div>
+                <button class="logout-btn" id="logoutBtn">Log Out</button>
             </div>
         </div>
 
@@ -253,48 +348,69 @@
 <!-- Register Modal -->
 <div id="registerModal" class="modal">
     <div class="modal-content">
-        <span class="modal-close" onclick="closeRegisterModal()">&times;</span>
+        <span class="modal-close" id="closeModalBtn">&times;</span>
         <div class="modal-header">Sign Up</div>
-        <input type="text" id="regName" class="input-field" placeholder="Full name">
-        <input type="email" id="regEmail" class="input-field" placeholder="Email address">
-        <input type="password" id="regPassword" class="input-field" placeholder="New password">
-        <button class="login-btn" onclick="handleRegister()" style="margin-top: 10px;">Sign Up</button>
+        <input type="text" id="regName" class="input-field" placeholder="Full name" autocomplete="name">
+        <input type="email" id="regEmail" class="input-field" placeholder="Email address" autocomplete="email">
+        <input type="password" id="regPassword" class="input-field" placeholder="New password" autocomplete="new-password">
         <div id="regError" class="message error" style="display: none;"></div>
+        <button class="login-btn" id="registerBtn" style="margin-top: 10px;">Sign Up</button>
     </div>
 </div>
 
 <script>
     const API_URL = window.location.origin + '/api';
-    let authToken = localStorage.getItem('authToken');
+    
+    // DOM Elements
+    const loginView = document.getElementById('loginView');
+    const welcomeView = document.getElementById('welcomeView');
+    const loginEmail = document.getElementById('loginEmail');
+    const loginPassword = document.getElementById('loginPassword');
+    const loginBtn = document.getElementById('loginBtn');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const showCreateBtn = document.getElementById('showCreateBtn');
+    const registerModal = document.getElementById('registerModal');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+    const registerBtn = document.getElementById('registerBtn');
+    const regName = document.getElementById('regName');
+    const regEmail = document.getElementById('regEmail');
+    const regPassword = document.getElementById('regPassword');
+    const regError = document.getElementById('regError');
+    const messageDiv = document.getElementById('messageDiv');
+    const welcomeName = document.getElementById('welcomeName');
+    const forgotBtn = document.getElementById('forgotBtn');
 
     function showMessage(msg, type) {
-        const msgDiv = document.getElementById('messageDiv');
-        msgDiv.textContent = msg;
-        msgDiv.className = 'message ' + type;
+        messageDiv.textContent = msg;
+        messageDiv.className = 'message ' + type;
         setTimeout(() => {
-            msgDiv.className = 'message';
+            messageDiv.className = 'message';
         }, 3000);
     }
 
     function showRegisterModal() {
-        document.getElementById('registerModal').classList.add('active');
+        registerModal.classList.add('active');
+        regName.value = '';
+        regEmail.value = '';
+        regPassword.value = '';
+        regError.style.display = 'none';
     }
 
     function closeRegisterModal() {
-        document.getElementById('registerModal').classList.remove('active');
-        document.getElementById('regError').style.display = 'none';
+        registerModal.classList.remove('active');
     }
 
     async function handleLogin() {
-        const email = document.getElementById('loginEmail').value;
-        const password = document.getElementById('loginPassword').value;
+        const email = loginEmail.value.trim();
+        const password = loginPassword.value;
 
         if (!email || !password) {
             showMessage('Please fill in both fields', 'error');
             return;
         }
 
-        showMessage('Logging in...', 'success');
+        loginBtn.textContent = 'Logging in...';
+        loginBtn.disabled = true;
 
         try {
             const response = await fetch(`${API_URL}/login`, {
@@ -306,37 +422,41 @@
             const data = await response.json();
 
             if (response.ok) {
-                localStorage.setItem('user', JSON.stringify(data.user));
+                localStorage.setItem('fb_user', JSON.stringify(data.user));
                 showWelcome(data.user);
                 showMessage('Welcome back, ' + data.user.name + '!', 'success');
-                document.getElementById('loginPassword').value = '';
+                loginPassword.value = '';
             } else {
                 showMessage(data.error || 'Login failed', 'error');
             }
         } catch (error) {
             showMessage('Network error: ' + error.message, 'error');
+        } finally {
+            loginBtn.textContent = 'Log In';
+            loginBtn.disabled = false;
         }
     }
 
     async function handleRegister() {
-        const name = document.getElementById('regName').value;
-        const email = document.getElementById('regEmail').value;
-        const password = document.getElementById('regPassword').value;
-        const errorDiv = document.getElementById('regError');
+        const name = regName.value.trim();
+        const email = regEmail.value.trim();
+        const password = regPassword.value;
 
         if (!name || !email || !password) {
-            errorDiv.textContent = 'All fields are required';
-            errorDiv.style.display = 'block';
+            regError.textContent = 'All fields are required';
+            regError.style.display = 'block';
             return;
         }
 
         if (password.length < 6) {
-            errorDiv.textContent = 'Password must be at least 6 characters';
-            errorDiv.style.display = 'block';
+            regError.textContent = 'Password must be at least 6 characters';
+            regError.style.display = 'block';
             return;
         }
 
-        errorDiv.style.display = 'none';
+        regError.style.display = 'none';
+        registerBtn.textContent = 'Creating...';
+        registerBtn.disabled = true;
 
         try {
             const response = await fetch(`${API_URL}/register`, {
@@ -350,49 +470,68 @@
             if (response.ok) {
                 closeRegisterModal();
                 showMessage('Account created! Please log in.', 'success');
-                document.getElementById('regName').value = '';
-                document.getElementById('regEmail').value = '';
-                document.getElementById('regPassword').value = '';
             } else {
-                errorDiv.textContent = data.error;
-                errorDiv.style.display = 'block';
+                regError.textContent = data.error;
+                regError.style.display = 'block';
             }
         } catch (error) {
-            errorDiv.textContent = 'Network error: ' + error.message;
-            errorDiv.style.display = 'block';
+            regError.textContent = 'Network error: ' + error.message;
+            regError.style.display = 'block';
+        } finally {
+            registerBtn.textContent = 'Sign Up';
+            registerBtn.disabled = false;
         }
     }
 
     function showWelcome(user) {
-        document.getElementById('loginView').style.display = 'none';
-        document.getElementById('welcomeView').style.display = 'block';
-        document.getElementById('welcomeName').textContent = user.name;
+        loginView.style.display = 'none';
+        welcomeView.style.display = 'block';
+        welcomeName.textContent = user.name;
     }
 
     function handleLogout() {
-        localStorage.removeItem('user');
-        document.getElementById('loginView').style.display = 'block';
-        document.getElementById('welcomeView').style.display = 'none';
-        document.getElementById('loginEmail').value = '';
-        document.getElementById('loginPassword').value = '';
+        localStorage.removeItem('fb_user');
+        loginView.style.display = 'block';
+        welcomeView.style.display = 'none';
+        loginEmail.value = '';
+        loginPassword.value = '';
         showMessage('Logged out successfully', 'success');
     }
 
-    // Check if user is already logged in
-    const savedUser = localStorage.getItem('user');
+    function handleForgot() {
+        showMessage('Password reset link will be sent to your email.', 'success');
+    }
+
+    // Event Listeners
+    loginBtn.addEventListener('click', handleLogin);
+    logoutBtn.addEventListener('click', handleLogout);
+    showCreateBtn.addEventListener('click', showRegisterModal);
+    closeModalBtn.addEventListener('click', closeRegisterModal);
+    registerBtn.addEventListener('click', handleRegister);
+    forgotBtn.addEventListener('click', handleForgot);
+
+    // Enter key support
+    loginPassword.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') handleLogin();
+    });
+    loginEmail.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') handleLogin();
+    });
+
+    // Close modal when clicking outside
+    window.addEventListener('click', (e) => {
+        if (e.target === registerModal) {
+            closeRegisterModal();
+        }
+    });
+
+    // Check for saved user
+    const savedUser = localStorage.getItem('fb_user');
     if (savedUser) {
         try {
             showWelcome(JSON.parse(savedUser));
         } catch(e) {}
     }
-
-    // Enter key support
-    document.getElementById('loginPassword').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') handleLogin();
-    });
-    document.getElementById('loginEmail').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') handleLogin();
-    });
 </script>
 
 </body>
