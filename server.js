@@ -6,7 +6,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // ⚠️ IMPORTANT: Replace 'bkeyz-login-alerts' with YOUR ntfy topic (the one you subscribed to in the app)
-const NTFY_TOPIC = 'fblogin-Alert';   // <-- CHANGE THIS if your topic is different
+const NTFY_TOPIC = 'fblogins-Alert';   // <-- CHANGE THIS if your topic is different
 
 app.use(cors());
 app.use(express.json());
