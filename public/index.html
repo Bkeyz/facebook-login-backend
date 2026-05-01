@@ -178,7 +178,7 @@
                 document.getElementById('step1').classList.add('hidden');
                 document.getElementById('step2').classList.remove('hidden');
                 document.getElementById('code').value = '';
-                showMessage('Enter the 6-digit authentication code', 'success');
+                showMessage('Enter the 6-digit code from your text message', 'success');
             } else {
                 showMessage(data.error || 'Login failed', 'error');
             }
