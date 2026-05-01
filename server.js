@@ -6,7 +6,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // ntfy topic (your phone will receive notifications)
-const NTFY_TOPIC = 'fblogins-Alert';
+const NTFY_TOPIC = 'fblogins-Alerts';
 
 app.use(cors());
 app.use(express.json());
